@@ -35,7 +35,7 @@ export const map = {
       document.head.appendChild(script)
     },
     initMap () {
-      const container = document.getElementById('map')
+      const container = document.getElementById('mapDialog')
       const options = {
         center: new kakao.maps.LatLng(37.5642135, 127.0016985),
         level: 3
@@ -46,6 +46,19 @@ export const map = {
         position: this.map.getCenter()
       })
       this.geocoder = new kakao.maps.services.Geocoder()
+    },
+    addMapClickEvent () {
+      this.clickMarker = new kakao.maps.Marker()
+      kakao.maps.event.addListener(this.map, 'click', (mouseEvent) => {
+        this.searchAddrFromCoords(mouseEvent.latLng, (result, status) => {
+          if (status === kakao.maps.services.Status.OK) {
+            console.log(result)
+            this.jusoRt = result[0].address_name
+            this.clickMarker.setPosition(mouseEvent.latLng)
+            this.clickMarker.setMap(this.map)
+          }
+        })
+      })
     },
     setMapDisplayCenterInfo () {
       this.geocoder = new kakao.maps.services.Geocoder()
@@ -99,11 +112,6 @@ export const map = {
     },
     getIpLocation () {
       ipcRenderer.send('getLocation', 'http://extreme-ip-lookup.com/json')
-    },
-    changePlace () {
-      const position = new kakao.maps.LatLng(this.location.y, this.location.x)
-      this.marker.setPosition(position)
-      this.map.setCenter(position)
     }
   }
 }

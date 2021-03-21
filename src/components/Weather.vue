@@ -1,9 +1,22 @@
 <template>
   <q-card>
+    <q-card-section class="q-mx-md row items-center">
+      <q-icon size="sm" name="fas fa-bullseye"></q-icon>
+      <span class="text-subtitle q-mx-md">Weather</span>
+      <span>
+        <q-icon :name="nowWeather.icon"></q-icon>
+      </span>
+      <span class="text-bold q-mx-md">{{ nowWeather.name }}</span>
+      <q-space />
+      <q-btn flat round icon="fas fa-retweet" @click="getData"></q-btn>
+    </q-card-section>
+
     <q-card-section>
-      날씨 정보
-      <q-btn @click="getData">Get</q-btn>
-      {{ weather }}
+      <q-table
+        :data="tableWeather"
+        :columns="columns"
+        hide-pagination
+      />
     </q-card-section>
   </q-card>
 </template>
@@ -19,16 +32,91 @@ export default {
     ...mapState({
       location: state => state.weather.location,
       weather: state => state.weather.weather
-    })
+    }),
+    tableWeather () {
+      const result = {}
+      this.weather.forEach(item => {
+        result[item.category] = item.obsrValue
+      })
+      console.log(result)
+      return [result]
+    },
+    nowWeather () {
+      let result = {}
+      let item = {}
+      this.weather.forEach(row => {
+        if (row.category === 'PTY') {
+          item = row
+        }
+      })
+      const id = Number(item.obsrValue)
+      switch (id) {
+        case 0:
+          result = { id: id, name: '맑음', icon: 'fas fa-sun' }
+          break
+        case 1:
+          result = { id: id, name: '비', icon: 'fas fa-umbrella' }
+          break
+        case 2:
+          result = { id: id, name: '비/눈', icon: 'fas fa-braille' }
+          break
+        case 3:
+          result = { id: id, name: '눈', icon: 'fas fa-snowflake' }
+          break
+        case 4:
+          result = { id: id, name: '소나기', icon: 'fas fa-poo-storm' }
+          break
+        case 5:
+          result = { id: id, name: '빗방울', icon: 'fas fa-cloud-rain' }
+          break
+        case 6:
+          result = { id: id, name: '빗방울/눈날림', icon: 'fas fa-wind' }
+          break
+        case 7:
+          result = { id: id, name: '눈날림', icon: 'fas fa-water' }
+          break
+      }
+      console.log('wether', result)
+      return result
+    }
   },
   data () {
     return {
       key: process.env.WEATHER_KEY,
-      nx: '18',
-      ny: '1',
       site: 'http://apis.data.go.kr/1360000/VilageFcstInfoService/getUltraSrtNcst',
-      baseTimes: ['2300', '2000', '1700', '1400', '1100', '0800', '0500', '0200'],
-      rtData: ''
+      columns: [
+        {
+          name: '기온',
+          label: '기온 C',
+          field: 'T1H',
+          align: 'center'
+        },
+        {
+          name: '강수량',
+          label: '강수량 mm',
+          field: 'RN1',
+          align: 'center'
+        },
+        {
+          name: '습도',
+          label: '습도 %',
+          field: 'REH',
+          align: 'center'
+        },
+        {
+          name: '풍향',
+          label: '풍향 deg',
+          field: 'VEC',
+          align: 'center'
+        },
+        {
+          name: '풍속',
+          label: '풍속 m/s',
+          field: 'WSD',
+          align: 'center'
+        }
+
+      ]
     }
   },
   mounted () {

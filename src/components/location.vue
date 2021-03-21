@@ -23,9 +23,7 @@
         <div id="map" style="width: 100%; height: 250px; background: gray"></div>
       </q-card-section>
       <q-dialog v-model="searchPlace">
-        <q-card style="min-width: 400px;">
-          search
-        </q-card>
+        <Address @changePlace="changePlace" />
       </q-dialog>
     </q-card>
 </template>
@@ -33,9 +31,12 @@
 <script>
 import { mapState } from 'vuex'
 import { map } from '../mixins/map'
+import Address from './Address'
+
 export default {
   name: 'Location',
   mixins: [map],
+  components: { Address },
   computed: {
     ...mapState({
       location: state => state.weather.location
@@ -45,6 +46,9 @@ export default {
     return {
       searchPlace: false
     }
+  },
+  methods: {
+    //
   }
 }
 </script>
