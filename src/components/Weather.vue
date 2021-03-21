@@ -11,6 +11,7 @@
 <script>
 import moment from 'moment'
 import { ipcRenderer } from 'electron'
+import convertXY from '../api/convertXY'
 
 export default {
   data () {
@@ -33,10 +34,11 @@ export default {
     async getData () {
       const date = moment().format('YYYYMMDD')
       const time = await this.getTime(moment().format('HHMM'))
-      console.log(time)
+      const xy = convertXY('toXY', 33.450701, 126.570667)
+      console.log(xy)
       const query = `serviceKey=${this.key}&numOfRows=10&pageNo=1` +
                     `&dataType=JSON&base_date=${date}&base_time=${time}` +
-                    `&nx=${this.nx}&ny=${this.ny}`
+                    `&nx=${xy.x}&ny=${xy.y}`
       console.log(query)
       ipcRenderer.send('req', `${this.site}?${query}`)
     },
