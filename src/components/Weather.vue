@@ -3,17 +3,24 @@
     <q-card-section>
       날씨 정보
       <q-btn @click="getData">Get</q-btn>
-      {{ rtData }}
+      {{ weather }}
     </q-card-section>
   </q-card>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import moment from 'moment'
 import { ipcRenderer } from 'electron'
 import convertXY from '../api/convertXY'
 
 export default {
+  computed: {
+    ...mapState({
+      location: state => state.weather.location,
+      weather: state => state.weather.weather
+    })
+  },
   data () {
     return {
       key: process.env.WEATHER_KEY,
@@ -26,29 +33,31 @@ export default {
   },
   mounted () {
     ipcRenderer.on('weatherData', (e, data) => {
-      this.rtData = data.response.body.items.item
-      console.log(data)
+      if (data && data.response.body.items.item) {
+        this.$store.commit('weather/updateWeather', data.response.body.items.item)
+      } else {
+        console.log('기상 정보를 가져올 수 없습니다.')
+      }
     })
   },
   methods: {
     async getData () {
-      const date = moment().format('YYYYMMDD')
-      const time = await this.getTime(moment().format('HHMM'))
-      const xy = convertXY('toXY', 33.450701, 126.570667)
+      const base = await this.getTime()
+      const xy = convertXY('toXY', this.location.x, this.location.y)
       console.log(xy)
       const query = `serviceKey=${this.key}&numOfRows=10&pageNo=1` +
-                    `&dataType=JSON&base_date=${date}&base_time=${time}` +
+                    `&dataType=JSON&base_date=${base.date}&base_time=${base.time}` +
                     `&nx=${xy.x}&ny=${xy.y}`
       console.log(query)
       ipcRenderer.send('req', `${this.site}?${query}`)
     },
-    async getTime (time) {
-      console.log('start', time)
-      for (let i = 0; i < this.baseTimes.length; i++) {
-        if (Number(this.baseTimes[i]) < Number(time)) {
-          console.log(this.baseTimes[i])
-          return this.baseTimes[i]
-        }
+    async getTime () {
+      const date = moment().format('YYYYMMDD')
+      const time = moment().format('HH00')
+      if (time === '0000') {
+        return { date: date - 1, time: 2300 }
+      } else {
+        return { date: date, time: time - 100 }
       }
     }
   }

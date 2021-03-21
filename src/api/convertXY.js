@@ -1,4 +1,4 @@
-export default function dfsXyConv (code, v1, v2) {
+export default function dfsXyConv (code, v2, v1) {
   const { PI, tan, log, cos, pow, floor, sin, sqrt, atan, abs, atan2 } = Math
   //
   // LCC DFS 좌표변환을 위한 기초 자료

@@ -19,7 +19,7 @@ function createWindow () {
     useContentSize: true,
     webPreferences: {
       nodeIntegration: true,
-      nodeIntegrationInWorker: true,
+      nodeIntegrationInWorker: true
       // webSecurity: false
     }
   })
@@ -55,6 +55,22 @@ ipcMain.on('req', (e, query) => {
     response.on('data', (chunk) => {
       console.log(`BODY: ${chunk}`)
       mainWindow.webContents.send('weatherData', JSON.parse(chunk.toString()))
+    })
+    response.on('end', () => {
+      console.log('No more data in response.')
+    })
+  })
+  req.end()
+})
+
+ipcMain.on('getLocation', (e, query) => {
+  const req = net.request(query)
+  req.on('response', (response) => {
+    // console.log(`STATUS: ${response.statusCode}`)
+    // console.log(`HEADERS: ${JSON.stringify(response.headers)}`)
+    response.on('data', (chunk) => {
+      console.log(chunk.toString())
+      mainWindow.webContents.send('locationData', JSON.parse(chunk.toString()))
     })
     response.on('end', () => {
       console.log('No more data in response.')
