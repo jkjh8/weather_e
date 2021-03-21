@@ -7,8 +7,11 @@
         <q-icon :name="nowWeather.icon"></q-icon>
       </span>
       <span class="text-bold q-mx-md">{{ nowWeather.name }}</span>
+      <span class="q-ml-md q-mr-xs text-caption">기준시간</span>
+      <span class="q-mx-xs text-caption">{{ baseDate }}</span>
+      <span class="q-mx-xs text-caption">{{ baseTime }}</span>
       <q-space />
-      <q-btn flat round icon="fas fa-retweet" @click="getData"></q-btn>
+      <q-btn flat round size="sm" icon="fas fa-sync-alt" @click="getData"></q-btn>
     </q-card-section>
 
     <q-card-section>
@@ -33,6 +36,20 @@ export default {
       location: state => state.weather.location,
       weather: state => state.weather.weather
     }),
+    baseDate () {
+      if (this.weather && this.weather[0]) {
+        return moment(this.weather[0].baseDate).format('YYYY/MM/DD')
+      } else {
+        return ''
+      }
+    },
+    baseTime () {
+      if (this.weather && this.weather[0]) {
+        return moment(this.weather[0].baseTime).format('LTS')
+      } else {
+        return ''
+      }
+    },
     tableWeather () {
       const result = {}
       this.weather.forEach(item => {
@@ -122,6 +139,7 @@ export default {
   mounted () {
     ipcRenderer.on('weatherData', (e, data) => {
       if (data && data.response.body.items.item) {
+        console.log(data.response.body)
         this.$store.commit('weather/updateWeather', data.response.body.items.item)
       } else {
         console.log('기상 정보를 가져올 수 없습니다.')
@@ -131,21 +149,25 @@ export default {
   methods: {
     async getData () {
       const base = await this.getTime()
+      console.log(base)
       const xy = convertXY('toXY', this.location.x, this.location.y)
       console.log(xy)
       const query = `serviceKey=${this.key}&numOfRows=10&pageNo=1` +
-                    `&dataType=JSON&base_date=${base.date}&base_time=${base.time}` +
+                    `&dataType=JSON&base_date=${base.date}&base_time=${base.time.padStart(4, '0')}` +
                     `&nx=${xy.x}&ny=${xy.y}`
       console.log(query)
       ipcRenderer.send('req', `${this.site}?${query}`)
     },
     async getTime () {
       const date = moment().format('YYYYMMDD')
-      const time = moment().format('HH00')
+      let time = moment().format('HH00')
       if (time === '0000') {
         return { date: date - 1, time: 2300 }
       } else {
-        return { date: date, time: time - 100 }
+        time = time - 100
+        time = String(time)
+        time = time.length >= 4 ? time : new Array(4 - time.length + 1).join('0') + time
+        return { date: date, time: time }
       }
     }
   }

@@ -55,3 +55,7 @@ export function updateDustLocations (state, locations) {
 export function updateDustLocation (state, location) {
   state.dustLocation = location
 }
+
+export function updateDust (state, dust) {
+  state.dust = dust
+}

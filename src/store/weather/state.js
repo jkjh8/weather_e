@@ -7,6 +7,7 @@ export default function () {
     },
     weather: [],
     dustLocations: [],
-    dustLocation: {}
+    dustLocation: {},
+    dust: []
   }
 }
