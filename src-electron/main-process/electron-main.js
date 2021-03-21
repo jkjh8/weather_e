@@ -78,3 +78,19 @@ ipcMain.on('getLocation', (e, query) => {
   })
   req.end()
 })
+
+ipcMain.on('dustLocation', (e, query) => {
+  const req = net.request(query)
+  req.on('response', (response) => {
+    // console.log(`STATUS: ${response.statusCode}`)
+    // console.log(`HEADERS: ${JSON.stringify(response.headers)}`)
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`)
+      mainWindow.webContents.send('dustLocationRt', JSON.parse(chunk.toString()))
+    })
+    response.on('end', () => {
+      console.log('No more data in response.')
+    })
+  })
+  req.end()
+})

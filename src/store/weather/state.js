@@ -5,6 +5,8 @@ export default function () {
       x: 0,
       y: 0
     },
-    weather: []
+    weather: [],
+    dustLocations: [],
+    dustLocation: {}
   }
 }

@@ -47,3 +47,11 @@ export function updateWeather (state, weather) {
   console.log(result)
   state.weather = result
 }
+
+export function updateDustLocations (state, locations) {
+  state.dustLocations = locations
+}
+
+export function updateDustLocation (state, location) {
+  state.dustLocation = location
+}

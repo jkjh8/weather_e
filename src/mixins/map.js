@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import proj4 from 'proj4'
 
 export const map = {
   data () {
@@ -25,6 +26,9 @@ export const map = {
           this.$store.commit('weather/updateLocation', place[0])
         })
       }
+    })
+    ipcRenderer.on('dustLocationRt', (e, data) => {
+      console.log(data)
     })
   },
   methods: {
@@ -104,6 +108,15 @@ export const map = {
       const position = new kakao.maps.LatLng(this.location.y, this.location.x)
       this.marker.setPosition(position)
       this.map.setCenter(position)
+      console.log(this.location)
+      const firstProjection = '+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs'
+      const secondProjection = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+      const tm = proj4(secondProjection, firstProjection, [Number(this.location.x), Number(this.location.y)])
+
+      const url = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList'
+      const queryParams = `ServiceKey=${process.env.DUST_LOCATION_KET}` +
+                          `&returnType=JSON&tmX=${tm[0]}&tmY=${tm[1]}&ver=1.0`
+      ipcRenderer.send('dustLocation', `${url}?${queryParams}`)
     }
   }
 }
