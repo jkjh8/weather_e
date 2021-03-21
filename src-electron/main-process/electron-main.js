@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme, session } from 'electron'
+import { app, BrowserWindow, nativeTheme, net, ipcMain } from 'electron'
 
 try {
   if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
@@ -6,10 +6,6 @@ try {
   }
 } catch (_) { }
 
-/**
- * Set `__statics` path to static files in production;
- * The reason we are setting it here is that the path needs to be evaluated at runtime
- */
 if (process.env.PROD) {
   global.__statics = __dirname
 }
@@ -17,22 +13,14 @@ if (process.env.PROD) {
 let mainWindow
 
 function createWindow () {
-  /**
-   * Initial window options
-   */
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 600,
     useContentSize: true,
     webPreferences: {
-      // Change from /quasar.conf.js > electron > nodeIntegration;
-      // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
-      nodeIntegration: process.env.QUASAR_NODE_INTEGRATION,
-      nodeIntegrationInWorker: process.env.QUASAR_NODE_INTEGRATION,
-      webSecurity: false
-
-      // More info: /quasar-cli/developing-electron-apps/electron-preload-script
-      // preload: path.resolve(__dirname, 'electron-preload.js')
+      nodeIntegration: true,
+      nodeIntegrationInWorker: true,
+      // webSecurity: false
     }
   })
 
@@ -57,4 +45,20 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+ipcMain.on('req', (e, query) => {
+  const req = net.request(query)
+  req.on('response', (response) => {
+    // console.log(`STATUS: ${response.statusCode}`)
+    // console.log(`HEADERS: ${JSON.stringify(response.headers)}`)
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`)
+      mainWindow.webContents.send('weatherData', JSON.parse(chunk.toString()))
+    })
+    response.on('end', () => {
+      console.log('No more data in response.')
+    })
+  })
+  req.end()
 })

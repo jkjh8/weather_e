@@ -1,29 +1,23 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <div>아이콘 제작자 <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/kr/" title="Flaticon">www.flaticon.com</a></div>
-    <q-header elevated>
-      <q-toolbar class="bg-teal">
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
-
-        <q-toolbar-title>
-          날씨
-        </q-toolbar-title>
-
-        <div>
-          <q-btn
-            round
-            flat
-            icon="refresh"
-          ></q-btn>
+    <q-header class="bg-white text-black">
+      <div class="fit row no-wrap items-center">
+      <div class="fit row no-wrap justify-center items-center nav q-pa-md">
+        <div class="text-center nav">
+          <router-link class="q-mx-sm text-subtitle1" to="/">Home</router-link>
+          <span>|</span>
+          <router-link class="q-mx-sm text-subtitle1" to="/setup">Setup</router-link>
         </div>
-      </q-toolbar>
+      </div>
+      <div class="q-mr-md">
+        <q-btn
+          round
+          flat
+          size="sm"
+          icon="fas fa-sync-alt"
+        ></q-btn>
+      </div>
+    </div>
     </q-header>
 
     <q-page-container>
@@ -42,3 +36,14 @@ export default {
   }
 }
 </script>
+
+<style>
+.nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.nav a.router-link-exact-active {
+  color: #42b983;
+}
+</style>
