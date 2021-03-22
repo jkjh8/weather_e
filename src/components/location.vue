@@ -72,9 +72,11 @@ export default {
       }
     })
     ipcRenderer.on('dustLocationRt', (e, data) => {
-      console.log(data)
       this.$store.commit('weather/updateDustLocations', data.response.body.items)
       this.$store.commit('weather/updateDustLocation', data.response.body.items[0])
+      console.log(data.response.body.items)
+      db.update({ id: 'dustlocations' }, { $set: { value: data.response.body.items } }, { upsert: true })
+      db.update({ id: 'dustlocation' }, { $set: { value: data.response.body.items[0] } }, { upsert: true })
     })
   },
   methods: {

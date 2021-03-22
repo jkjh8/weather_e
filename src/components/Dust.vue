@@ -53,7 +53,7 @@
                 <q-item-label caption lines="1">{{ item.addr }}</q-item-label>
               </q-item-section>
 
-              <q-item-section side>{{ item.tm }}</q-item-section>
+              <q-item-section side>{{ item.tm }}km</q-item-section>
 
             </q-item>
           </q-list>
@@ -68,8 +68,9 @@
 
 <script>
 import { mapState } from 'vuex'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 import query from '../mixins/query'
+const db = remote.getGlobal('db')
 
 export default {
   mixins: [query],
@@ -97,7 +98,7 @@ export default {
       ]
     }
   },
-  mounted () {
+  async mounted () {
     ipcRenderer.on('dust', (e, data) => {
       if (data && data.response.body.items) {
         this.$store.commit('weather/updateDust', data.response.body.items)
@@ -109,6 +110,13 @@ export default {
         console.log('미세먼지 정보를 가져올 수 없습니다.')
       }
     })
+    const res1 = await db.findOne({ id: 'dustlocations' })
+    const res2 = await db.findOne({ id: 'dustlocation' })
+    console.log(res1)
+    if (res1) {
+      this.$store.commit('weather/updateDustLocations', res1.value)
+      this.$store.commit('weather/updateDustLocation', res2.value)
+    }
   },
   methods: {
     async getData () {
