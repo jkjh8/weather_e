@@ -2,20 +2,23 @@
   <q-card>
     <q-card-section class="q-mx-md row items-center">
       <q-icon class="q-ml-sm" size="sm" name="fas fa-braille"></q-icon>
-      <span class="text-subtitle q-mx-lg">Dust</span>
+      <span class="text-h6 q-mx-md">Dust</span>
+      <span class="text-subtitle">측정소:</span>
+      <span
+        v-if="dustLocation.stationName"
+        class="text-subtitle text-bold"
+      >
+        {{ dustLocation.stationName }}
+      </span>
+
       <span class="q-ml-md q-mr-xs text-caption">기준시간</span>
       <span v-if="dust[0]" class="q-mx-xs text-caption">{{ dust[0].dataTime }}</span>
       <q-space />
-      <span class="q-mx-md" style="min-width: 100px">
-        <q-select
-          v-model="sel"
-          :options="dustLocations"
-          option-label="stationName"
-          :label="dustLocation.stationName"
-          dense
-          @input="selDustLocation"
-        ></q-select>
-      </span>
+      <q-btn
+        flat
+        round
+        icon="fas fa-map-marked-alt"
+      />
       <q-btn flat round size="sm" icon="fas fa-sync-alt" @click="getData"></q-btn>
     </q-card-section>
 

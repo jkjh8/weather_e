@@ -1,4 +1,7 @@
 import { app, BrowserWindow, nativeTheme, net, ipcMain } from 'electron'
+import db from './db'
+
+global.db = db
 
 try {
   if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
@@ -19,7 +22,8 @@ function createWindow () {
     useContentSize: true,
     webPreferences: {
       nodeIntegration: true,
-      nodeIntegrationInWorker: true
+      nodeIntegrationInWorker: true,
+      enableRemoteModule: true
       // webSecurity: false
     }
   })

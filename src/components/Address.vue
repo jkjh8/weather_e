@@ -1,6 +1,6 @@
 <template>
   <q-card style="min-width: 600px">
-    <q-card-section>
+    <q-card-section class="q-pb-xs">
       <div class="text-h6">주소검색</div>
       <div class="text-subtitle2">주소를 겁색하거나 지도에 위치를 클륵하세요</div>
       <div class="row">
@@ -29,7 +29,7 @@
         </div>
       </div>
     </q-card-section>
-    <q-card-section style="max-height: 120px; overflow-y: auto;">
+    <q-card-section class="q-pt-xs" style="max-height: 120px; overflow-y: auto;">
       <q-list>
         <q-item
           v-for="(item, idx) in places"
@@ -50,7 +50,13 @@
     </q-card-section>
     <q-card-section>
       <div id="mapDialog" style="width: 100%; height: 350px;position: relative;">
-        <div class="q-ma-md q-pa-sm text-bold bg-white" style="position: absolute; z-index: 2; opacity: 0.7">{{ centerAddr }}</div>
+        <div
+          v-if="currentPlace && currentPlace.address_name"
+          class="q-ma-md q-pa-sm text-bold text-white bg-black"
+          style="position: absolute; z-index: 2; opacity: 0.5"
+        >
+          {{ currentPlace.address_name }}
+        </div>
       </div>
     </q-card-section>
     <q-card-actions align="right" class="text-primary">
@@ -61,11 +67,14 @@
 </template>
 
 <script>
+import map from '../mixins/map'
 export default {
   name: 'PageIndex',
+  mixins: [map],
   data () {
     return {
       map: null,
+      mapId: 'mapDialog',
       centerAddr: '',
       place: '',
       places: [],
@@ -76,65 +85,16 @@ export default {
     }
   },
   mounted () {
-    window.kakao && window.kakao.maps ? this.initMap() : this.addScript()
+    this.initMap()
+    this.addMapClickEvent()
   },
   methods: {
-    addScript () {
-      const script = document.createElement('script') /* global kakao */
-      script.onload = () => kakao.maps.load(this.initMap)
-      script.src = `http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=${process.env.KAKAO_JS_KEY}&libraries=services`
-      document.head.appendChild(script)
-    },
-    initMap () {
-      const container = document.getElementById('mapDialog')
-      const options = {
-        center: new kakao.maps.LatLng(37.5642135, 127.0016985),
-        level: 3
-      }
-      this.map = new kakao.maps.Map(container, options)
-      this.marker = new kakao.maps.Marker({
-        map: this.map,
-        position: this.map.getCenter()
-      })
-      this.geocoder = new kakao.maps.services.Geocoder()
-      this.searchAddrFromCoords(this.map.getCenter(), this.displayCenterInfo)
-      kakao.maps.event.addListener(this.map, 'idle', () => {
-        this.searchAddrFromCoords(this.map.getCenter(), this.displayCenterInfo)
-      })
-      this.addMapClickEvent()
-    },
-    displayCenterInfo (result, status) {
-      if (status === kakao.maps.services.Status.OK) {
-        for (let i = 0; i < result.length; i++) {
-          if (result[i].region_type === 'H') {
-            this.centerAddr = result[i].address_name
-            break
-          }
-        }
-      }
-    },
-    searchAddrFromCoords (coords, callback) {
-      this.geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback)
-    },
-    search () {
-      this.ps = new kakao.maps.services.Places()
-      this.ps.keywordSearch(this.place, this.placesSearchCB)
-    },
+    /* global kakao */
     placesSearchCB (data, status) {
       if (status === kakao.maps.services.Status.OK) {
         console.log(data)
         this.places = data
       }
-    },
-    addMapClickEvent () {
-      kakao.maps.event.addListener(this.map, 'click', (mouseEvent) => {
-        this.searchAddrFromCoords(mouseEvent.latLng, (result, status) => {
-          if (status === kakao.maps.services.Status.OK) {
-            this.marker.setPosition(mouseEvent.latLng)
-            this.currentPlace = result[0]
-          }
-        })
-      })
     },
     clickList (idx) {
       console.log(idx)
@@ -146,8 +106,8 @@ export default {
       // this.$store.commit('weather/updateLocation', item)
     },
     submit () {
-      this.$store.commit('weather/updateLocation', this.currentPlace)
-      this.$emit('changePlace')
+      // this.$store.commit('weather/updateLocation', this.currentPlace)
+      this.$emit('changePlace', this.currentPlace)
     }
   }
 }

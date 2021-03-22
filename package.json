@@ -15,6 +15,7 @@
     "core-js": "^3.6.5",
     "dotenv": "^8.2.0",
     "moment": "^2.29.1",
+    "nedb-promises": "^4.1.1",
     "proj4": "^2.7.2",
     "quasar": "^1.0.0"
   },

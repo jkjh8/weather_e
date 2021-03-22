@@ -2,7 +2,7 @@
   <q-card>
     <q-card-section class="q-mx-md row items-center">
       <q-icon size="sm" name="fas fa-bullseye"></q-icon>
-      <span class="text-subtitle q-mx-md">Weather</span>
+      <span class="text-h6 q-mx-md">Weather</span>
       <span>
         <q-icon :name="nowWeather.icon"></q-icon>
       </span>
@@ -138,7 +138,7 @@ export default {
   },
   mounted () {
     ipcRenderer.on('weatherData', (e, data) => {
-      if (data && data.response.body.items.item) {
+      if (data && data.response.header.resultCode === '00') {
         console.log(data.response.body)
         this.$store.commit('weather/updateWeather', data.response.body.items.item)
       } else {
@@ -164,8 +164,7 @@ export default {
       if (time === '0000') {
         return { date: date - 1, time: 2300 }
       } else {
-        time = time - 100
-        time = String(time)
+        time = String(time - 100)
         time = time.length >= 4 ? time : new Array(4 - time.length + 1).join('0') + time
         return { date: date, time: time }
       }
