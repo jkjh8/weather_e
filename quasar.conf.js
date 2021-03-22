@@ -90,7 +90,7 @@ module.exports = function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Meta']
+      plugins: ['Notify']
     },
 
     // animations: 'all', // --- includes all animations

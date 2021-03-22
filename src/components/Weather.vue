@@ -45,7 +45,7 @@ export default {
     },
     baseTime () {
       if (this.weather && this.weather[0]) {
-        return moment(this.weather[0].baseTime).format('LTS')
+        return this.weather[0].baseTime.replace(/(.{2})/g, '$1:').slice(0, -1)
       } else {
         return ''
       }

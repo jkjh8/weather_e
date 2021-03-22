@@ -84,8 +84,8 @@ export default {
       geocoder: null
     }
   },
-  mounted () {
-    this.initMap()
+  async mounted () {
+    await this.initMap()
     this.addMapClickEvent()
   },
   methods: {

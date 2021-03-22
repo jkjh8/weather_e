@@ -72,7 +72,7 @@ export default {
       }
     })
     ipcRenderer.on('dustLocationRt', (e, data) => {
-      console.log(data.response.body.items)
+      console.log(data)
       this.$store.commit('weather/updateDustLocations', data.response.body.items)
       this.$store.commit('weather/updateDustLocation', data.response.body.items[0])
     })
@@ -86,14 +86,12 @@ export default {
       const tm = this.getTm(place)
       place.tm = { x: tm[0], y: tm[1] }
       this.$store.commit('weather/updateLocation', place)
-      const position = new kakao.maps.LatLng(place.y, place.x)
+      const position = new window.kakao.maps.LatLng(place.y, place.x)
       this.moveMarker(position)
       db.update({ id: 'location' }, { $set: { value: place } }, { upsert: true })
       this.getDustLocations(place)
     },
     getDustLocations (place) {
-      // const url = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList'
-      // const queryParams = `ServiceKey=${process.env.DUST_LOCATION_KET}&returnType=JSON&tmX=${location.tm.x}&tmY=${location.tm.x}&ver=1.0`
       ipcRenderer.send('dustLocation', `${this.dustLocUrl}?${this.dustLocQuery(place)}`)
     }
   }

@@ -1,6 +1,14 @@
 import proj4 from 'proj4'
+import { mapState } from 'vuex'
+import { remote } from 'electron'
+const db = remote.getGlobal('db')
 
 export default {
+  computed: {
+    ...mapState({
+      location: state => state.weather.location
+    })
+  },
   methods: {
     addScript () {
       const script = document.createElement('script')
@@ -11,12 +19,20 @@ export default {
                     '&libraries=services'
       document.head.appendChild(script)
     },
-    initMap () {
-      const container = document.getElementById(this.mapId)/* global kakao */
-      const options = {
-        center: new kakao.maps.LatLng(37.5642135, 127.0016985),
-        level: 3
+    async initMap () {
+      let place
+      /* global kakao */
+      if (this.location) {
+        const result = await db.findOne({ id: 'location' })
+        if (result) {
+          this.$store.commit('weather/updateLocation', result.value)
+          place = new kakao.maps.LatLng(result.value.y, result.value.x)
+        } else {
+          place = new kakao.maps.LatLng(37.5642135, 127.0016985)
+        }
       }
+      const container = document.getElementById(this.mapId)
+      const options = { center: place, level: 3 }
       this.map = new kakao.maps.Map(container, options)
       this.addMarker(this.map)
       this.geocoder = new kakao.maps.services.Geocoder()
