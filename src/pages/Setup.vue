@@ -2,8 +2,6 @@
   <q-page>
     <div class="q-mx-xl">
       <q-separator inset />
-      <Api />
-      <q-separator inset />
       <Ipaddr />
       <q-separator inset />
     </div>
@@ -11,15 +9,14 @@
 </template>
 
 <script>
-import Api from '../components/Api'
 import Ipaddr from '../components/Ipaddr'
 
 export default {
   name: 'Setup',
-  components: { Api, Ipaddr },
+  components: { Ipaddr },
   data () {
     return {
-      //
+      setup: null
     }
   }
 }

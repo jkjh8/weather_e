@@ -1,5 +1,5 @@
 <template>
-  <q-card>
+  <q-card flat>
     <q-card-section class="q-mx-md row items-center">
       <q-icon class="q-ml-sm" size="sm" name="fas fa-braille"></q-icon>
       <span class="text-h6 q-mx-md">Dust</span>
@@ -20,7 +20,7 @@
         icon="fas fa-map-marked-alt"
         @click="dialog=!dialog"
       />
-      <q-btn flat round size="sm" icon="fas fa-sync-alt" @click="getData"></q-btn>
+      <q-btn flat round size="sm" icon="fas fa-sync-alt" @click="getDust"></q-btn>
     </q-card-section>
 
     <q-card-section>
@@ -101,7 +101,9 @@ export default {
   async mounted () {
     ipcRenderer.on('dust', (e, data) => {
       if (data && data.response.body.items) {
-        this.$store.commit('weather/updateDust', data.response.body.items)
+        const rtDust = data.response.body.items
+        this.$store.commit('weather/updateDust', rtDust)
+        db.update({ id: 'dust' }, { $set: { value: rtDust } }, { upsert: true })
       } else {
         this.$q.notify({
           type: 'nagative',
@@ -119,12 +121,6 @@ export default {
     }
   },
   methods: {
-    async getData () {
-      if (this.dustLocations.length > 0 && !this.dustLocation.stationName) {
-        this.$store.commit('weather/updateDustLocation', this.dustLocations[0])
-      }
-      ipcRenderer.send('dust', `${this.dustUrl}?${this.dustQuery(this.dustLocation)}`)
-    },
     selDustLocation (item) {
       this.$store.commit('weather/updateDustLocation', item)
       this.dialog = false

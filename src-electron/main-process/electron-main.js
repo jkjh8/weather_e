@@ -1,5 +1,8 @@
 import { app, BrowserWindow, nativeTheme, net, ipcMain } from 'electron'
-import db from './db'
+import db from '../api/db'
+import { server, bridge } from '../api/socket'
+
+const setupList = {}
 
 global.db = db
 
@@ -17,7 +20,7 @@ let mainWindow
 
 function createWindow () {
   mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1000,
     height: 800,
     useContentSize: true,
     webPreferences: {
@@ -35,8 +38,11 @@ function createWindow () {
   })
 }
 
-app.on('ready', () => {
+app.on('ready', async () => {
   createWindow()
+  await getSetupFromDb()
+  initMainServer()
+  initBridgeServer()
 })
 
 app.on('window-all-closed', () => {
@@ -49,6 +55,41 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+async function getSetupFromDb () {
+  let port = await db.findOne({ id: 'serverport' })
+  if (!port) { setupList.serverPort = 9999 } else { setupList.serverPort = port.value }
+  port = await db.findOne({ id: 'bridgeport' })
+  if (!port) { setupList.bridgePort = 9998 } else { setupList.bridgePort = port.value }
+}
+
+async function initMainServer () {
+  server.read(setupList.serverPort, async (data) => {
+    switch (data) {
+      case 'weat': {
+        const result = await db.findOne({ id: 'weather' })
+        server.send(JSON.stringify(result.value))
+        break
+      }
+      case 'dust': {
+        const result = await db.findOne({ id: 'dust' })
+        server.send(JSON.stringify(result.value[0]))
+        break
+      }
+    }
+  })
+}
+
+async function initBridgeServer () {
+  bridge.read(setupList.bridgePort, (data) => {
+    console.log('bridge', data)
+  })
+}
+
+ipcMain.on('getSetup', (e) => {
+  console.log(setupList)
+  e.returnValue = setupList
 })
 
 ipcMain.on('req', (e, query) => {

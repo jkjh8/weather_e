@@ -3,7 +3,7 @@
       <q-card-section class="q-mx-md row items-center">
         <q-icon size="sm" name="fas fa-map"></q-icon>
         <span class="text-h6 q-mx-md">Location</span>
-        <span class="text-bold q-mx-md">{{ location.address }}</span>
+        <span class="text-bold q-mx-md">{{ location.address_name }}</span>
         <q-space />
         <q-btn
           flat
@@ -31,6 +31,7 @@
 <script>
 import { mapState } from 'vuex'
 import { ipcRenderer, remote } from 'electron'
+import convertXY from '../api/convertXY'
 import Address from './Address'
 import map from '../mixins/map'
 import query from '../mixins/query'
@@ -87,6 +88,7 @@ export default {
     changePlace (place) {
       const tm = this.getTm(place)
       place.tm = { x: tm[0], y: tm[1] }
+      place.xy = convertXY('toXY', this.location.x, this.location.y)
       this.$store.commit('weather/updateLocation', place)
       const position = new window.kakao.maps.LatLng(place.y, place.x)
       this.moveMarker(position)

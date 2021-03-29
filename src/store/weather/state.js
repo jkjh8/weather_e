@@ -6,6 +6,7 @@ export default function () {
       y: 0
     },
     weather: [],
+    weatherObj: {},
     dustLocations: [],
     dustLocation: {},
     dust: []

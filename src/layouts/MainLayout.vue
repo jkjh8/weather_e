@@ -15,6 +15,7 @@
           flat
           size="sm"
           icon="fas fa-sync-alt"
+          @click="getAll"
         ></q-btn>
       </div>
     </div>
@@ -27,8 +28,23 @@
 </template>
 
 <script>
+import mainFun from '../mixins/query'
+import moment from 'moment'
+
 export default {
   name: 'MainLayout',
+  mixins: [mainFun],
+  mounted () {
+    setInterval(() => {
+      const currTime = moment().format('mm')
+      console.log(currTime)
+      if (currTime === '45') {
+        this.getWeather()
+      } else if (currTime === '20') {
+        this.getDust()
+      }
+    }, 60000)
+  },
   data () {
     return {
       //
